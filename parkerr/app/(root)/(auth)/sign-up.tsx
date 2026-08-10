@@ -1,5 +1,4 @@
 import {Animated, Image, Text, View} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import {icons, images} from "@/app/constants";
 import ScrollView = Animated.ScrollView;
 import InputField from "@/app/components/InputField";
