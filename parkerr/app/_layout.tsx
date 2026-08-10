@@ -3,6 +3,7 @@ import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { View } from "react-native";
 import "react-native-reanimated";
+import {GestureHandlerRootView} from "react-native-gesture-handler";
 
 import "../global.css";
 
@@ -30,10 +31,13 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="(root)" />
-      <Stack.Screen name="modal" options={{ presentation: "modal", title: "Modal" }} />
-    </Stack>
+      <GestureHandlerRootView>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(root)" />
+          <Stack.Screen name="modal" options={{ presentation: "modal", title: "Modal" }} />
+        </Stack>
+      </GestureHandlerRootView>
+
   );
 }
