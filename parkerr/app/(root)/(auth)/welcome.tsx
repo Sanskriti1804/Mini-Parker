@@ -4,6 +4,7 @@ import { Dimensions, Image, Pressable, Text, View } from "react-native";
 import { Carousel } from "react-native-reanimated-carousel";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { data, onboarding } from "@/app/constants";
+import AppButton from "@/app/components/AppButton";
 
 const { width, height } = Dimensions.get("window");
 
@@ -11,6 +12,7 @@ type OnboardingItem = (typeof onboarding)[number];
 
 export default function Welcome() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const isLastSlide = activeIndex === onboarding.length - 1;
 
   return (
     <SafeAreaView className="flex h-full items-center justify-between bg-white ">
@@ -48,6 +50,12 @@ export default function Welcome() {
           </View>
         )}
       />
+
+      <AppButton title={
+          isLastSlide ? "Get Started" : "Next"
+      } onPress={() => isLastSlide ? router.replace('/(root)/(auth)/sign-up' ) : setActiveIndex(activeIndex)}
+                 className="w-5/6 px-8 "/>
+
 
       <View className="mb-10 flex-row items-center justify-center">
         {data.onboarding.map((_, index) => (
