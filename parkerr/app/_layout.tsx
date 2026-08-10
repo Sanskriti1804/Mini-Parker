@@ -1,20 +1,15 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
-import { SplashScreen, Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";  
-import "react-native-reanimated";
 import { useFonts } from "expo-font";
+import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
+import { View } from "react-native";
+import "react-native-reanimated";
 
-export const unstable_settings = {
-  anchor: "(tabs)",
-};
+import "../global.css";
+
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [loaded] = useFonts({
+  const [loaded, error] = useFonts({
     "Jakarta-Bold": require("../assets/fonts/PlusJakartaSans-Bold.ttf"),
     "Jakarta-ExtraBold": require("../assets/fonts/PlusJakartaSans-ExtraBold.ttf"),
     "Jakarta-ExtraLight": require("../assets/fonts/PlusJakartaSans-ExtraLight.ttf"),
@@ -22,20 +17,23 @@ export default function RootLayout() {
     "Jakarta-Medium": require("../assets/fonts/PlusJakartaSans-Medium.ttf"),
     "Jakarta-Regular": require("../assets/fonts/PlusJakartaSans-Regular.ttf"),
     "Jakarta-SemiBold": require("../assets/fonts/PlusJakartaSans-SemiBold.ttf"),
-});
+  });
 
-useEffect(() => {
-  if(loaded){
-    SplashScreen.hideAsync();
+  useEffect(() => {
+    if (loaded || error) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, error]);
+
+  if (!loaded && !error) {
+    return <View style={{ flex: 1, backgroundColor: "#ffffff" }} />;
   }
-},[loaded]);
- if(!loaded){return null}
 
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name = "(root)" options={{headerShown : false}}/>
-      <Stack.Screen name = "(auth)" options={{headerShown : false}}/>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="(root)" />
+      <Stack.Screen name="modal" options={{ presentation: "modal", title: "Modal" }} />
     </Stack>
   );
 }
