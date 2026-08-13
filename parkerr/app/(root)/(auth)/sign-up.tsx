@@ -36,6 +36,7 @@ const Signup = () => {
         }
 
         //account creation was succssful - send an email containing the verification code
+        //error : sendError - (destructuring + renaming) - means - const sendError = result.error(take the error prop and store it in a var)
         const {error: sendError} = await signUp.verifications.sendEmailCode();
 
         if (sendError) {    //failed to send code

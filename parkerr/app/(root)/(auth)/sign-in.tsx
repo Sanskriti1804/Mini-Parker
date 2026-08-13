@@ -1,19 +1,129 @@
-import {Animated, Image, Text, View} from "react-native";
 import {icons, images} from "@/app/constants";
 import ScrollView = Animated.ScrollView;
 import InputField from "@/app/components/InputField";
 import {useState} from "react";
 import AppButton from "@/app/components/AppButton";
-import {Link} from "expo-router";
 import OAuth from "@/app/components/OAuth";
+import { useSignIn } from '@clerk/expo'
+import { type Href, Link, useRouter } from 'expo-router'
+import React from 'react'
+import { Pressable, StyleSheet, TextInput, View, Animated, Image, Text } from 'react-native'
 
 const Signin = () => {
+    const { signIn, errors, fetchStatus } = useSignIn()
+    const router = useRouter()
+
+    const [emailAddress, setEmailAddress] = React.useState('')
+    const [password, setPassword] = React.useState('')
+    const [code, setCode] = React.useState('')
+
     const [form, setForm] = useState({
-        email: "",
+        emailAddress: "",
         password: "",
     })
 
-    const  onSignupPress = async () => {}
+    const  handleSubmit = async () => {
+        const { error } = await signIn.password({
+            emailAddress,
+            password,
+        })
+        if (error) {
+            console.error(JSON.stringify(error, null, 2))
+            return
+        }
+
+        if (signIn.status === 'complete') {
+            await signIn.finalize({
+                navigate: ({ session, decorateUrl }) => {
+                    // Handle session tasks
+                    if (session?.currentTask) {
+                        console.log(session?.currentTask)
+                        return
+                    }
+
+                    // If no session tasks, navigate the signed-in user to the home page
+                    const url = decorateUrl('/')
+                    if (url.startsWith('http')) {
+                        window.location.href = url
+                    } else {
+                        router.push(url as Href)
+                    }
+                },
+            })
+        } else {
+            // Check why the sign-in is not complete
+            console.error('Sign-in attempt not complete:', signIn)
+        }
+    }
+
+const handleVerify = async () => {
+    await signIn.mfa.verifyEmailCode({ code })
+
+    if (signIn.status === 'complete') {
+        await signIn.finalize({
+            navigate: ({ session, decorateUrl }) => {
+                if (session?.currentTask) {
+                    console.log(session?.currentTask)
+                    return
+                }
+
+                const url = decorateUrl('/')
+                if (url.startsWith('http')) {
+                    window.location.href = url
+                } else {
+                    router.push(url as Href)
+                }
+            },
+        })
+    } else {
+        console.error('Sign-in attempt not complete:', signIn)
+    }
+}
+
+if (signIn.status === 'needs_client_trust') {
+    return (
+        <View style={styles.container}>
+            <Text  style={[styles.title, { fontSize: 24, fontWeight: 'bold' }]}>
+                Verify your account
+            </Text>
+            <TextInput
+                style={styles.input}
+                value={code}
+                placeholder="Enter your verification code"
+                placeholderTextColor="#666666"
+                onChangeText={(code) => setCode(code)}
+                keyboardType="numeric"
+            />
+            {errors.fields.code && (
+                <Text style={styles.error}>{errors.fields.code.message}</Text>
+            )}
+            <Pressable
+                style={({ pressed }) => [
+                    styles.button,
+                    fetchStatus === 'fetching' && styles.buttonDisabled,
+                    pressed && styles.buttonPressed,
+                ]}
+                onPress={handleVerify}
+                disabled={fetchStatus === 'fetching'}
+            >
+                <Text style={styles.buttonText}>Verify</Text>
+            </Pressable>
+            <Pressable
+                style={({ pressed }) => [styles.secondaryButton, pressed && styles.buttonPressed]}
+                onPress={() => signIn.mfa.sendEmailCode()}
+            >
+                <Text style={styles.secondaryButtonText}>I need a new code</Text>
+            </Pressable>
+            <Pressable
+                style={({ pressed }) => [styles.secondaryButton, pressed && styles.buttonPressed]}
+                onPress={() => signIn.reset()}
+            >
+                <Text style={styles.secondaryButtonText}>Start over</Text>
+            </Pressable>
+        </View>
+    )
+}
+
     return (
         <ScrollView className="flex-1 bg-white">
             <View className="flex-1 bg-white">
@@ -23,16 +133,30 @@ const Signin = () => {
                         Create Your Account
                     </Text>
 
-                    <InputField label="Email" placeholder="Enter your email" icon={icons.email} value={form.email} onChangeText={(value) => setForm({
+                    <InputField label="Email" placeholder="Enter your emailAddress" icon={icons.email} value={form.emailAddress} onChangeText={(value) => setForm({
                         ...form,
-                        email : value
+                        emailAddress : value
                     })} />
+                    {errors.fields.identifier && (
+                        <Text style={styles.error}>{errors.fields.identifier.message}</Text>
+                    )}
+
                     <InputField label="Password" placeholder="Enter your password" secureTextEntry={true} icon={icons.lock} value={form.password} onChangeText={(value) => setForm({
                         ...form,
                         password : value
                     })} />
+                    {errors.fields.password && (
+                        <Text style={styles.error}>{errors.fields.password.message}</Text>
+                    )}
 
-                    <AppButton title="Sign Up" onPress={onSignupPress} className="mt-5" />
+
+                    <AppButton
+                        style={({ pressed }) => [
+                            styles.button,
+                            (!emailAddress || !password || fetchStatus === 'fetching') && styles.buttonDisabled,
+                            pressed && styles.buttonPressed,
+                        ]}
+                        title="Sign Up" onPress={handleSubmit} className="mt-5" />
 
                     {/* O Auth*/}
                     <OAuth/>
@@ -46,5 +170,73 @@ const Signin = () => {
         </ScrollView>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 20,
+        gap: 12,
+    },
+    title: {
+        marginBottom: 8,
+    },
+    label: {
+        fontWeight: '600',
+        fontSize: 14,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        padding: 12,
+        fontSize: 16,
+        backgroundColor: '#fff',
+    },
+    button: {
+        backgroundColor: '#0a7ea4',
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 8,
+    },
+    buttonPressed: {
+        opacity: 0.7,
+    },
+    buttonDisabled: {
+        opacity: 0.5,
+    },
+    buttonText: {
+        color: '#fff',
+        fontWeight: '600',
+    },
+    secondaryButton: {
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 8,
+    },
+    secondaryButtonText: {
+        color: '#0a7ea4',
+        fontWeight: '600',
+    },
+    linkContainer: {
+        flexDirection: 'row',
+        gap: 4,
+        marginTop: 12,
+        alignItems: 'center',
+    },
+    error: {
+        color: '#d32f2f',
+        fontSize: 12,
+        marginTop: -8,
+    },
+    debug: {
+        fontSize: 10,
+        opacity: 0.5,
+        marginTop: 8,
+    },
+})
 
 export default Signin;
