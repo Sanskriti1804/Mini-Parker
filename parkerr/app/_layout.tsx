@@ -4,8 +4,13 @@ import { useEffect } from "react";
 import { View } from "react-native";
 import "react-native-reanimated";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
+import { ClerkProvider } from '@clerk/expo'
+import { tokenCache } from '@clerk/expo/token-cache'
+import { Slot } from 'expo-router'
 
 import "../global.css";
+
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!
 
 SplashScreen.preventAutoHideAsync();
 
@@ -30,14 +35,38 @@ export default function RootLayout() {
     return <View style={{ flex: 1, backgroundColor: "#ffffff" }} />;
   }
 
+  if (!publishableKey) {
+    throw new Error('Add your Clerk Publishable Key to the .env file')
+  }
+
   return (
-      <GestureHandlerRootView>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(root)" />
-          <Stack.Screen name="modal" options={{ presentation: "modal", title: "Modal" }} />
-        </Stack>
-      </GestureHandlerRootView>
+      //clerk provider - makes auth available throughout the app
+      //tokencache - handles persistent storage of clerk sess/token
+      <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+        <GestureHandlerRootView>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(root)" />
+            <Stack.Screen name="modal" options={{ presentation: "modal", title: "Modal" }} />
+          </Stack>
+        </GestureHandlerRootView>
+      </ClerkProvider>
+
 
   );
 }
+
+// import { Redirect } from "expo-router";
+// import { useAuth } from '@clerk/expo'
+//
+// const Index = ()=> {
+//   const { isSignedIn } = useAuth()
+//
+//   if (isSignedIn) {
+//     return <Redirect href= "/(root)/(tabs)/home"
+//     />  }
+//
+//   return <Redirect href="/welcome" />;
+// }
+//
+// export  default Index;

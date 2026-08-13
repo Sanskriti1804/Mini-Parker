@@ -2,7 +2,7 @@ import { Tabs } from "expo-router";
 
 export default function Layout() {
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
+    <Tabs initialRouteName="index" screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="home" options={{ title: "Home" }} />
       <Tabs.Screen name="ride" options={{ title: "Ride" }} />
       <Tabs.Screen name="chat" options={{ title: "Chat" }} />

@@ -4,17 +4,30 @@ import ScrollView = Animated.ScrollView;
 import InputField from "@/app/components/InputField";
 import {useState} from "react";
 import AppButton from "@/app/components/AppButton";
-import {Link} from "expo-router";
 import OAuth from "@/app/components/OAuth";
+import { useAuth, useSignUp } from '@clerk/expo'
+import { type Href, Link, useRouter } from 'expo-router'
+
 
 const Signup = () => {
+    const { signUp, errors, fetchStatus } = useSignUp()
+    const { isSignedIn } = useAuth()
+    const  router = useRouter()
+
     const [form, setForm] = useState({
         name : "",
-        email: "",
+        emailAddress: "",
         password: "",
     })
 
-    const  onSignupPress = async () => {}
+    const  handleSignUp = async () => {
+        const {error} = await signUp.password({emailAddress: form.emailAddress, password: form.password});
+        if(error){
+            return
+        }
+
+    }
+
   return (
         <ScrollView className="flex-1 bg-white">
             <View className="flex-1 bg-white">
@@ -27,16 +40,16 @@ const Signup = () => {
                         ...form,
                         name : value
                     })} />
-                    <InputField label="Email" placeholder="Enter your email" icon={icons.email} value={form.email} onChangeText={(value) => setForm({
+                    <InputField label="Email" placeholder="Enter your email" icon={icons.email} value={form.emailAddress} onChangeText={(value) => setForm({
                         ...form,
-                        email : value
+                        emailAddress : value
                     })} />
                     <InputField label="Password" placeholder="Enter your password" secureTextEntry={true} icon={icons.lock} value={form.password} onChangeText={(value) => setForm({
                         ...form,
                         password : value
                     })} />
 
-                    <AppButton title="Sign Up" onPress={onSignupPress} className="mt-5" />
+                    <AppButton title="Sign Up" onPress={handleSignUp} className="mt-5" />
                     
                 {/* O Auth*/}
                     <OAuth/>
