@@ -6,7 +6,6 @@ import "react-native-reanimated";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import { ClerkProvider } from '@clerk/expo'
 import { tokenCache } from '@clerk/expo/token-cache'
-import { Slot } from 'expo-router'
 
 import "../global.css";
 
@@ -43,7 +42,7 @@ export default function RootLayout() {
       //clerk provider - makes auth available throughout the app
       //tokencache - handles persistent storage of clerk sess/token
       <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-        <GestureHandlerRootView>
+        <GestureHandlerRootView style={{ flex: 1 }}>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="index" />
             <Stack.Screen name="(root)" />

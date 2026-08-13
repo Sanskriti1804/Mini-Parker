@@ -1,41 +1,62 @@
 import {
-    Image, KeyboardAvoidingView, Platform,
-    Pressable,
-    PressableProps,
-    StyleProp,
-    Text,
-    TextInputProps,
-    TextStyle,
-    View,
-    ViewStyle
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Text,
+  TextInput,
+  TextInputProps,
+  View,
+  ViewStyle,
+  TextStyle,
+  StyleProp,
 } from "react-native";
-import React from "react";
 
-interface InputFieldProps extends TextInputProps{
-    label? : string,
-    icon? : any,
-    secureTextEntry?: boolean,
-    labelStyle?: StyleProp<TextStyle>,
-    containerStyle?: StyleProp<ViewStyle>,
-    inputStyle?: StyleProp<TextStyle>,
-    iconStyle?: StyleProp<ViewStyle>,
-    className?: string
+interface InputFieldProps extends TextInputProps {
+  label?: string;
+  icon?: any;
+  secureTextEntry?: boolean;
+  labelStyle?: string;
+  containerStyle?: string;
+  inputStyle?: string;
+  iconStyle?: string;
+  className?: string;
 }
 
 const InputField = ({
-    label, icon, secureTextEntry = false, labelStyle, inputStyle, containerStyle, iconStyle, className, style, ...props
-} : InputFieldProps) => {
-    return(
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style = {{flex : 1}} >
-            <InputField >
-                <Text className={`text-lg font-JakartaSemiBold mb-3 ${labelStyle}`}>{label}</Text>
-                <View className={`flex flex-row justify-start items-center relative bg-neutral-100 rounded-full border border-neutral-100 focus:border-primary-500  ${containerStyle}`}>
-                    {icon && (<Image source={icon} className={`w-6 h-6 ml-4 ${iconStyle}`}/>)}
-                </View>
-            </InputField>
-        </KeyboardAvoidingView>
+  label,
+  icon,
+  secureTextEntry = false,
+  labelStyle,
+  inputStyle,
+  containerStyle,
+  iconStyle,
+  className,
+  ...props
+}: InputFieldProps) => {
+  return (
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <View className={`my-2 w-full ${className ?? ""}`}>
+        <Text className={`mb-3 text-lg font-JakartaSemiBold ${labelStyle ?? ""}`}>
+          {label}
+        </Text>
+        <View
+          className={`relative flex flex-row items-center justify-start rounded-full border border-neutral-100 bg-neutral-100 ${containerStyle ?? ""}`}
+        >
+          {icon && (
+            <Image source={icon} className={`ml-4 h-6 w-6 ${iconStyle ?? ""}`} />
+          )}
+          <TextInput
+            className={`flex-1 rounded-full p-4 text-[15px] font-JakartaSemiBold text-left ${inputStyle ?? ""}`}
+            secureTextEntry={secureTextEntry}
+            placeholderTextColor="#858585"
+            {...props}
+          />
+        </View>
+      </View>
+    </KeyboardAvoidingView>
+  );
+};
 
-    )
-}
-
-export  default  InputField;
+export default InputField;

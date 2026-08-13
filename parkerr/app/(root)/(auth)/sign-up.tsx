@@ -1,12 +1,11 @@
-import {Animated, Image, Pressable, Text, TextInput, View, StyleSheet} from "react-native";
+import {Image, Pressable, ScrollView, Text, TextInput, View, StyleSheet} from "react-native";
 import {icons, images} from "@/app/constants";
-import ScrollView = Animated.ScrollView;
 import InputField from "@/app/components/InputField";
 import {useState} from "react";
 import AppButton from "@/app/components/AppButton";
 import OAuth from "@/app/components/OAuth";
 import {useAuth, useSignUp} from "@clerk/expo";
-import {type Href, Link, useRouter} from "expo-router";
+import {Link, useRouter} from "expo-router";
 
 
 const Signup = () => {
@@ -27,7 +26,8 @@ const Signup = () => {
     const handleSignUp = async () => {
         const {error} = await signUp.password({
             emailAddress: form.emailAddress,
-            password: form.password
+            password: form.password,
+            firstName: form.name || undefined,
         });
 
         if (error) {

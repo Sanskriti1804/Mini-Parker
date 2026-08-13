@@ -1,5 +1,4 @@
 import {icons, images} from "@/app/constants";
-import ScrollView = Animated.ScrollView;
 import InputField from "@/app/components/InputField";
 import {useState} from "react";
 import AppButton from "@/app/components/AppButton";
@@ -7,14 +6,12 @@ import OAuth from "@/app/components/OAuth";
 import { useSignIn } from '@clerk/expo'
 import { type Href, Link, useRouter } from 'expo-router'
 import React from 'react'
-import { Pressable, StyleSheet, TextInput, View, Animated, Image, Text } from 'react-native'
+import { Pressable, StyleSheet, TextInput, View, ScrollView, Image, Text } from 'react-native'
 
 const Signin = () => {
     const { signIn, errors, fetchStatus } = useSignIn()
     const router = useRouter()
 
-    const [emailAddress, setEmailAddress] = React.useState('')
-    const [password, setPassword] = React.useState('')
     const [code, setCode] = React.useState('')
 
     const [form, setForm] = useState({
@@ -24,8 +21,8 @@ const Signin = () => {
 
     const  handleSubmit = async () => {
         const { error } = await signIn.password({
-            emailAddress,
-            password,
+            emailAddress: form.emailAddress,
+            password: form.password,
         })
         if (error) {
             console.error(JSON.stringify(error, null, 2))
@@ -34,6 +31,7 @@ const Signin = () => {
 
         if (signIn.status === 'complete') {
             await signIn.finalize({
+                //clerk - curr sess and a helper fnn - to prepare a current url for navigation
                 navigate: ({ session, decorateUrl }) => {
                     // Handle session tasks
                     if (session?.currentTask) {
@@ -42,14 +40,17 @@ const Signin = () => {
                     }
 
                     // If no session tasks, navigate the signed-in user to the home page
-                    const url = decorateUrl('/')
+                    const url = decorateUrl('/(root)/(tabs)/home')
+                    //if url - for browser - navigate to browser
                     if (url.startsWith('http')) {
                         window.location.href = url
                     } else {
-                        router.push(url as Href)
+                        router.replace(url as Href)
                     }
                 },
             })
+        } else if (signIn.status === 'needs_client_trust') {
+            await signIn.mfa.sendEmailCode()
         } else {
             // Check why the sign-in is not complete
             console.error('Sign-in attempt not complete:', signIn)
@@ -57,7 +58,11 @@ const Signin = () => {
     }
 
 const handleVerify = async () => {
-    await signIn.mfa.verifyEmailCode({ code })
+    const { error } = await signIn.mfa.verifyEmailCode({ code })
+    if (error) {
+        console.error(JSON.stringify(error, null, 2))
+        return
+    }
 
     if (signIn.status === 'complete') {
         await signIn.finalize({
@@ -67,11 +72,11 @@ const handleVerify = async () => {
                     return
                 }
 
-                const url = decorateUrl('/')
+                const url = decorateUrl('/(root)/(tabs)/home')
                 if (url.startsWith('http')) {
                     window.location.href = url
                 } else {
-                    router.push(url as Href)
+                    router.replace(url as Href)
                 }
             },
         })
@@ -130,10 +135,10 @@ if (signIn.status === 'needs_client_trust') {
                 <View className="relative w-full h-[250px]">
                     <Image source={images.signUpCar} className="z-0 w-full h-[250px]" />
                     <Text className="text-2xl text-black font-JakartaSemiBold absolute bottom-5 left-5">
-                        Create Your Account
+                        Welcome Back
                     </Text>
 
-                    <InputField label="Email" placeholder="Enter your emailAddress" icon={icons.email} value={form.emailAddress} onChangeText={(value) => setForm({
+                    <InputField label="Email" placeholder="Enter your email" icon={icons.email} value={form.emailAddress} onChangeText={(value) => setForm({
                         ...form,
                         emailAddress : value
                     })} />
@@ -153,17 +158,17 @@ if (signIn.status === 'needs_client_trust') {
                     <AppButton
                         style={({ pressed }) => [
                             styles.button,
-                            (!emailAddress || !password || fetchStatus === 'fetching') && styles.buttonDisabled,
+                            (!form.emailAddress || !form.password || fetchStatus === 'fetching') && styles.buttonDisabled,
                             pressed && styles.buttonPressed,
                         ]}
-                        title="Sign Up" onPress={handleSubmit} className="mt-5" />
+                        title="Sign In" onPress={handleSubmit} className="mt-5" />
 
                     {/* O Auth*/}
                     <OAuth/>
 
-                    <Link href="/sign-in" className="text-lg text-center text-general-200 mt-10">
-                        <Text>Already have an account?</Text>
-                        <Text className="text-primary-500">Log In</Text>
+                    <Link href="/sign-up" className="text-lg text-center text-general-200 mt-10">
+                        <Text>Do not have an account? </Text>
+                        <Text className="text-primary-500">Sign Up</Text>
                     </Link>
                 </View>
             </View>
