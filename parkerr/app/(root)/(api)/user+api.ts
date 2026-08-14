@@ -1,6 +1,6 @@
 import { neon } from "@neondatabase/serverless";
-import { data } from "@/app/constants";
 
+// Neon client — DATABASE_URL must be in project-root .env (server-only, never EXPO_PUBLIC_)
 const sql = neon(`${process.env.DATABASE_URL}`);
 
 export async function POST(req: Request) {

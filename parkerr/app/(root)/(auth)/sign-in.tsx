@@ -1,11 +1,10 @@
 import {icons, images} from "@/app/constants";
 import InputField from "@/app/components/InputField";
-import {useState} from "react";
+import React, {useState} from "react";
 import AppButton from "@/app/components/AppButton";
 import OAuth from "@/app/components/OAuth";
 import { useSignIn } from '@clerk/expo'
 import { type Href, Link, useRouter } from 'expo-router'
-import React from 'react'
 import { Pressable, StyleSheet, TextInput, View, ScrollView, Image, Text } from 'react-native'
 
 const Signin = () => {

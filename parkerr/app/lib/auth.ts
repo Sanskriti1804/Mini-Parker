@@ -1,23 +1,26 @@
-import * as Linking from "expo-linking";
+import * as Linking from "expo-linking"; //to create a deep link
 import * as SecureStore from "expo-secure-store";
 import { fetchAPI } from "@/app/lib/fetch";
 
+//storing tokens in secure store - instead of AsyncStorage
 export const tokenCache = {
   async getToken(key: string) {
     try {
       const item = await SecureStore.getItemAsync(key);
       if (item) {
-        console.log(`${key} was used 🔐 \n`);
+        console.log(`${key} was used \n`);
       } else {
         console.log("No values stored under key: " + key);
       }
-      return item;
+      return item; //give the token back to the clerk/auth system
     } catch (error) {
       console.error("SecureStore get item error: ", error);
-      await SecureStore.deleteItemAsync(key);
+      await SecureStore.deleteItemAsync(key); //remove the potentially corrupted/ invalid stored val
       return null;
     }
   },
+
+  //save token
   async saveToken(key: string, value: string) {
     try {
       return SecureStore.setItemAsync(key, value);

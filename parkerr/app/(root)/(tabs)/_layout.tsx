@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
 import { View, Image, ImageSourcePropType } from "react-native";
+import { icons } from "@/app/constants";
 
 // Reusable icon component for each tab
 const TabIcon = ({
@@ -54,10 +55,43 @@ export default function Layout() {
         },
       }}
     >
-      <Tabs.Screen name="home" options={{ title: "Home" }} />
-      <Tabs.Screen name="ride" options={{ title: "Ride" }} />
-      <Tabs.Screen name="chat" options={{ title: "Chat" }} />
-      <Tabs.Screen name="profile" options={{ title: "Profile" }} />
+      {/* Use existing TabIcon + constants icons (was defined but unused) */}
+      <Tabs.Screen
+        name="home"
+        options={{
+          title: "Home",
+          tabBarIcon: ({ focused }) => (
+            <TabIcon source={icons.home} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="ride"
+        options={{
+          title: "Ride",
+          tabBarIcon: ({ focused }) => (
+            <TabIcon source={icons.list} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="chat"
+        options={{
+          title: "Chat",
+          tabBarIcon: ({ focused }) => (
+            <TabIcon source={icons.chat} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ focused }) => (
+            <TabIcon source={icons.profile} focused={focused} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

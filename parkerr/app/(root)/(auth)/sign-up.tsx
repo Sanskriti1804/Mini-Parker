@@ -6,6 +6,7 @@ import AppButton from "@/app/components/AppButton";
 import OAuth from "@/app/components/OAuth";
 import {useAuth, useSignUp} from "@clerk/expo";
 import {Link, useRouter} from "expo-router";
+import {fetchAPI} from "@/app/lib/fetch";
 
 
 const Signup = () => {
@@ -47,31 +48,46 @@ const Signup = () => {
         console.log("Verification code sent!");
     };
 
-    //verify the email
+    // Verify email, save user to Neon, then activate Clerk session
     const handleVerify = async () => {
-        const {error} = await signUp.verifications.verifyEmailCode({
-            code
-        });
+        try {
+            // Clerk Core 3: verifyEmailCode returns { error }, user id lives on signUp
+            const { error } = await signUp.verifications.verifyEmailCode({
+                code
+            });
 
-        if (error) {
+            if (error) {
+                console.error(JSON.stringify(error, null, 2));
+                return;
+            }
+
+            // Match user+api.ts body shape: { name, email, clerkId }
+            if (signUp.status === "complete" || isSignedIn) {
+                await fetchAPI("/(api)/user", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        name: form.name,
+                        email: form.emailAddress,
+                        clerkId: signUp.createdUserId,
+                    }),
+                });
+            }
+
+            // Finalize turns a completed sign-up into an active session
+            const { error: finalizeError } = await signUp.finalize();
+
+            if (finalizeError) {
+                console.error(JSON.stringify(finalizeError, null, 2));
+                return;
+            }
+
+            router.replace("/(root)/(tabs)/home");
+        } catch (error) {
             console.error(JSON.stringify(error, null, 2));
-            return;
         }
-
-        //finalize the signup
-        const {error: finalizeError} = await signUp.finalize();
-
-        if (finalizeError) {
-            console.error(JSON.stringify(finalizeError, null, 2));
-            return;
-        }
-
-        router.replace("/(root)/(tabs)/home");
     };
 
-    if(signUp.status === "complete" || isSignedIn) {
-        return  null
-    }
+
 
     //email verification screens
     if(signUp.status === "missing_requirements" && signUp.unverifiedFields.includes('email_address') && signUp.missingFields.length === 0) {

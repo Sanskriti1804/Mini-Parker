@@ -1,7 +1,7 @@
 import React from 'react';
-import {Text, View, Image} from "react-native";
+import { Text, View, Image } from "react-native";
 import AppButton from "@/app/components/AppButton";
-import {icons, images} from "@/app/constants";
+import { icons } from "@/app/constants";
 
 const  OAuth= () => {
     const handleGoogleSignIn = async () => {};

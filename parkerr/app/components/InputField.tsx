@@ -6,9 +6,6 @@ import {
   TextInput,
   TextInputProps,
   View,
-  ViewStyle,
-  TextStyle,
-  StyleProp,
 } from "react-native";
 
 interface InputFieldProps extends TextInputProps {
