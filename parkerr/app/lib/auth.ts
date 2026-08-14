@@ -41,7 +41,8 @@ export const googleOAuth = async (startOAuthFlow: any) => {
         await setActive({ session: createdSessionId });
 
         if (signUp.createdUserId) {
-          await fetchAPI("/(api)/user", {
+          // Same Neon user create as email sign-up (/user = user+api route)
+          await fetchAPI("/user", {
             method: "POST",
             body: JSON.stringify({
               name: `${signUp.firstName} ${signUp.lastName}`,

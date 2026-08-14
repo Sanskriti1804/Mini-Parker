@@ -1,16 +1,32 @@
 import { useState, useEffect, useCallback } from "react";
+import Constants from "expo-constants";
 //useState - store state
 //useEffect - runs code bc smthth happened or changes - run the api call when the component needs it
 //useCallback - remembers a fnn so react doesnt create a new fnn every render
 
+// Resolve API host: local Expo in __DEV__, else EXPO_PUBLIC_SERVER_URL (deployed)
+const getBaseUrl = () => {
+  const hostUri = Constants.expoConfig?.hostUri;
+  if (__DEV__ && hostUri) {
+    return `http://${hostUri}`;
+  }
+  return process.env.EXPO_PUBLIC_SERVER_URL ?? "";
+};
+
 //fetchApi - talks to the server (Neon API routes via Expo)
 export const fetchAPI = async (url: string, options?: RequestInit) => {
   try {
-    // Native needs an absolute host; EXPO_PUBLIC_SERVER_URL should point at Expo/dev or deployed API
-    const baseUrl = process.env.EXPO_PUBLIC_SERVER_URL ?? "";
+    const baseUrl = getBaseUrl();
     const requestUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
 
-    const response = await fetch(requestUrl, options);
+    const response = await fetch(requestUrl, {
+      ...options,
+      // Needed so user+api.ts can parse JSON body for Neon insert
+      headers: {
+        "Content-Type": "application/json",
+        ...(options?.headers ?? {}),
+      },
+    });
     if (!response.ok) {
       // Must throw — otherwise failed Neon writes look like success
       throw new Error(`HTTP error! status: ${response.status}`);

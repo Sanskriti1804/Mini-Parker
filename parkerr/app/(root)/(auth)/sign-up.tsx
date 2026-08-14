@@ -70,15 +70,21 @@ const Signup = () => {
       }
 
       // Match user+api.ts body shape: { name, email, clerkId }
+      // Path is /user because (root)/(api) groups are omitted from the URL
       if (signUp.status === "complete" || isSignedIn) {
-        await fetchAPI("/(api)/user", {
-          method: "POST",
-          body: JSON.stringify({
-            name: form.name,
-            email: form.emailAddress,
-            clerkId: signUp.createdUserId,
-          }),
-        });
+        try {
+          await fetchAPI("/user", {
+            method: "POST",
+            body: JSON.stringify({
+              name: form.name,
+              email: form.emailAddress,
+              clerkId: signUp.createdUserId,
+            }),
+          });
+        } catch (dbError) {
+          // Don't block Clerk session if Neon insert fails
+          console.error("Neon user create failed:", JSON.stringify(dbError, null, 2));
+        }
       }
 
       // Finalize turns a completed sign-up into an active session

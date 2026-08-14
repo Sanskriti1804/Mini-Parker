@@ -16,8 +16,9 @@ export async function POST(req: Request) {
     }
 
     //perform opperation on db - result is an array of rows
+    // Quote "clerkId" so Postgres keeps camelCase (matches Neon table)
     const result = await sql`
-      INSERT INTO users (name, email, clerkId)
+      INSERT INTO users (name, email, "clerkId")
       VALUES (${name}, ${email}, ${clerkId})
         RETURNING *
     `;
