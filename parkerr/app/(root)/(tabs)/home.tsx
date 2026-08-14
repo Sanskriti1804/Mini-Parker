@@ -1,6 +1,4 @@
-// @ts-ignore
-// eslint-disable-next-line import/no-unresolved,import/no-duplicates
-import { useAuth, useUser } from "@clerk/clerk-expo";
+import { useAuth, useUser } from "@clerk/expo"; // package is @clerk/expo (not @clerk/clerk-expo)
 // @ts-ignore
 // eslint-disable-next-line import/no-unresolved
 import * as Location from "expo-location";
@@ -19,6 +17,7 @@ import { useFetch } from "@/app/lib/fetch";
 import { Ride } from "@/app/types/type";
 import RideCard from "@/app/components/RideCard";
 import { icons, images } from "@/app/constants";
+import { useLocationStore } from "@/app/store";
 
 const recentRides = [
   {
@@ -131,7 +130,7 @@ const Home = () => {
   const { user } = useUser();
   const { signOut } = useAuth();
 
-  // const { setUserLocation, setDestinationLocation } = useLocationStore();
+  const { setUserLocation, setDestinationLocation } = useLocationStore();
 
   const handleSignOut = () => {
     signOut();
@@ -161,11 +160,11 @@ const Home = () => {
         longitude: location.coords?.longitude!,
       });
 
-      // setUserLocation({
-      //   latitude: location.coords?.latitude,
-      //   longitude: location.coords?.longitude,
-      //   address: `${address[0].name}, ${address[0].region}`,
-      // });
+      setUserLocation({
+        latitude: location.coords?.latitude,
+        longitude: location.coords?.longitude,
+        address: `${address[0].name}, ${address[0].region}`,
+      });
     })();
   }, []);
 
@@ -174,8 +173,8 @@ const Home = () => {
     longitude: number;
     address: string;
   }) => {
-    // setDestinationLocation(location);
-    // router.push("/(root)/find-ride");
+    setDestinationLocation(location);
+    router.push("/(root)/(tabs)/ride");
   };
 
   return (
