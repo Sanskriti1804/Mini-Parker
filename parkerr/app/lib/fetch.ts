@@ -47,6 +47,12 @@ export const useFetch = <T>(url: string, options?: RequestInit) => {
 
   //to keep the fnn stable b/w renders unless url changes
   const fetchData = useCallback(async () => {
+    // Skip empty urls (e.g. home tested without a signed-in user)
+    if (!url) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 

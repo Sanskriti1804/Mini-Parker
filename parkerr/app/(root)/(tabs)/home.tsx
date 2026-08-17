@@ -18,6 +18,8 @@ import { Ride } from "@/app/types/type";
 import RideCard from "@/app/components/RideCard";
 import { icons, images } from "@/app/constants";
 import { useLocationStore } from "@/app/store";
+import Map from "@/app/components/map";
+import GoogleTextInput from "@/app/components/GoogleTextInput";
 
 const recentRides = [
   {
@@ -140,10 +142,10 @@ const Home = () => {
   const [hasPermission, setHasPermission] = useState<boolean>(false);
 
   const {
-    data: recentRides,
+    data: fetchedRides,
     loading,
     error,
-  } = useFetch<Ride[]>(`/(api)/ride/${user?.id}`);
+  } = useFetch<Ride[]>(user?.id ? `/ride/${user.id}` : "");
 
   useEffect(() => {
     (async () => {
@@ -160,10 +162,11 @@ const Home = () => {
         longitude: location.coords?.longitude!,
       });
 
+      // Guard empty reverse-geocode so home doesn't crash when testing without location
       setUserLocation({
         latitude: location.coords?.latitude,
         longitude: location.coords?.longitude,
-        address: `${address[0].name}, ${address[0].region}`,
+        address: `${address[0]?.name ?? "Unknown"}, ${address[0]?.region ?? ""}`,
       });
     })();
   }, []);
@@ -174,13 +177,13 @@ const Home = () => {
     address: string;
   }) => {
     setDestinationLocation(location);
-    router.push("/(root)/(tabs)/ride");
+    router.push("/find-ride");
   };
 
   return (
     <SafeAreaView className="bg-general-500">
       <FlatList
-        data={recentRides?.slice(0, 5)}
+        data={(fetchedRides ?? (recentRides as unknown as Ride[]))?.slice(0, 5)}
         renderItem={({ item }) => <RideCard ride={item} />}
         keyExtractor={(item, index) => index.toString()}
         className="px-5"
@@ -209,7 +212,7 @@ const Home = () => {
           <>
             <View className="flex flex-row items-center justify-between my-5">
               <Text className="text-2xl font-JakartaExtraBold">
-                Welcome {user?.firstName}👋
+                Welcome {user?.firstName ?? "Guest"}👋
               </Text>
               <TouchableOpacity
                 onPress={handleSignOut}
@@ -219,18 +222,18 @@ const Home = () => {
               </TouchableOpacity>
             </View>
 
-            {/*<GoogleTextInput*/}
-            {/*  icon={icons.search}*/}
-            {/*  containerStyle="bg-white shadow-md shadow-neutral-300"*/}
-            {/*  handlePress={handleDestinationPress}*/}
-            {/*/>*/}
+            <GoogleTextInput
+              icon={icons.search}
+              containerStyle="bg-white shadow-md shadow-neutral-300"
+              handlePress={handleDestinationPress}
+            />
 
             <>
               <Text className="text-xl font-JakartaBold mt-5 mb-3">
                 Your current location
               </Text>
               <View className="flex flex-row items-center bg-transparent h-[300px]">
-                {/*<Map />*/}
+                <Map />
               </View>
             </>
 

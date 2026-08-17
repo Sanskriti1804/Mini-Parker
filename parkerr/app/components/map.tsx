@@ -14,19 +14,24 @@ import { icons } from "@/app/constants";
 
 const directionsAPI = process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY;
 
+//FETCHES THE DRIVER LOCATION AND CONVERTS THE DRIVE DATA INTO MAP MARKERS AND CALC THE TIME TO THE DEST
 const Map = () => {
+  //give me these 4 props val from useLocationStore - instead of writing as - cnst location = useLocation() - location.userLongitude.
   const {
     userLongitude,
     userLatitude,
     destinationLatitude,
     destinationLongitude,
   } = useLocationStore();
+
   const { selectedDriver, setDrivers } = useDriverStore();
 
   const { data: drivers, loading, error } = useFetch<Driver[]>("/(api)/driver");
+  //array of markerData obj - intially empty array
   const [markers, setMarkers] = useState<MarkerData[]>([]);
 
   useEffect(() => {
+    //make sure drivers - is actually an array b4 processing it
     if (Array.isArray(drivers)) {
       if (!userLatitude || !userLongitude) return;
 
@@ -46,12 +51,14 @@ const Map = () => {
       destinationLatitude !== undefined &&
       destinationLongitude !== undefined
     ) {
+      //calc the travel time/dis for the drivers
       calculateDriverTimes({
         markers,
         userLatitude,
         userLongitude,
         destinationLatitude,
         destinationLongitude,
+        //once the cal finishes - save the uodated  driver data in the state
       }).then((drivers) => {
         setDrivers(drivers as MarkerData[]);
       });
@@ -84,7 +91,7 @@ const Map = () => {
       provider={PROVIDER_DEFAULT}
       className="w-full h-full rounded-2xl"
       tintColor="black"
-      mapType="mutedStandard"
+      mapType="mutedStandard" //less detailed
       // showsPointsOfInterest={false}
       initialRegion={region}
       showsUserLocation={true}
@@ -98,6 +105,7 @@ const Map = () => {
             longitude: marker.longitude,
           }}
           title={marker.title}
+          //if the driver is selected - use Selected icon marker or else normal marker
           image={
             selectedDriver === +marker.id ? icons.selectedMarker : icons.marker
           }
