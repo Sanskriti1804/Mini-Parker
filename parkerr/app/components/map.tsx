@@ -26,7 +26,7 @@ const Map = () => {
 
   const { selectedDriver, setDrivers } = useDriverStore();
 
-  const { data: drivers, loading, error } = useFetch<Driver[]>("/(api)/driver");
+  const { data: drivers, loading, error } = useFetch<Driver[]>("/driver");
   //array of markerData obj - intially empty array
   const [markers, setMarkers] = useState<MarkerData[]>([]);
 
@@ -79,13 +79,7 @@ const Map = () => {
       </View>
     );
 
-  if (error)
-    return (
-      <View className="flex justify-between items-center w-full">
-        <Text>Error: {error}</Text>
-      </View>
-    );
-
+  // Don't block map on driver API errors — still show current location
   return (
     <MapView
       provider={PROVIDER_DEFAULT}

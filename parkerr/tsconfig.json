@@ -3,9 +3,15 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"],
+      "@/components/*": ["./app/components/*"],
+      "@/constants": ["./app/constants/index"],
+      "@/constants/*": ["./app/constants/*"],
+      "@/lib/*": ["./app/lib/*"],
+      "@/store": ["./app/store/index"],
+      "@/store/*": ["./app/store/*"],
+      "@/types/*": ["./types/*"],
+      "@/app/types/*": ["./types/*"]
     }
   },
   "include": [
@@ -13,6 +19,7 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "nativewind-env.d.ts"
+    "nativewind-env.d.ts",
+    "types/**/*.d.ts"
   ]
 }

@@ -7,7 +7,7 @@ import React, { useRef } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-import Map from "@/components/Map";
+import Map from "@/components/map";
 import { icons } from "@/constants";
 
 const RideLayout = ({

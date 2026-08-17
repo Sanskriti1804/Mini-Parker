@@ -1,5 +1,5 @@
-import { useUser } from "@clerk/clerk-expo";
-import { useAuth } from "@clerk/clerk-expo";
+import { useUser } from "@clerk/expo";
+import { useAuth } from "@clerk/expo";
 import * as Location from "expo-location";
 import { router } from "expo-router";
 import { useState, useEffect } from "react";
@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import GoogleTextInput from "@/components/GoogleTextInput";
-import Map from "@/components/Map";
+import Map from "@/components/map";
 import RideCard from "@/components/RideCard";
 import { icons, images } from "@/constants";
 import { useFetch } from "@/lib/fetch";
@@ -29,7 +29,7 @@ const Home = () => {
 
   const handleSignOut = () => {
     signOut();
-    router.replace("/(auth)/sign-in");
+    router.replace("/sign-in" as any);
   };
 
   const [hasPermission, setHasPermission] = useState<boolean>(false);
@@ -38,7 +38,7 @@ const Home = () => {
     data: recentRides,
     loading,
     error,
-  } = useFetch<Ride[]>(`/(api)/ride/${user?.id}`);
+  } = useFetch<Ride[]>(user?.id ? `/ride/${user.id}` : "");
 
   useEffect(() => {
     (async () => {
@@ -55,10 +55,11 @@ const Home = () => {
         longitude: location.coords?.longitude!,
       });
 
+      // Guard empty geocode results so home does not crash
       setUserLocation({
         latitude: location.coords?.latitude,
         longitude: location.coords?.longitude,
-        address: `${address[0].name}, ${address[0].region}`,
+        address: `${address[0]?.name ?? ""}, ${address[0]?.region ?? ""}`,
       });
     })();
   }, []);
@@ -70,7 +71,7 @@ const Home = () => {
   }) => {
     setDestinationLocation(location);
 
-    router.push("/(root)/find-ride");
+    router.push("/find-ride" as any);
   };
 
   return (

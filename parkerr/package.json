@@ -13,6 +13,7 @@
   "dependencies": {
     "@clerk/expo": "^4.2.5",
     "@expo/vector-icons": "^15.0.3",
+    "@gorhom/bottom-sheet": "^5.2.14",
     "@neondatabase/serverless": "^1.1.0",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",

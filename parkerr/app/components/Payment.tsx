@@ -1,58 +1,50 @@
 import AppButton from "@/app/components/AppButton";
+import { fetchAPI } from "@/app/lib/fetch";
 import { useStripe } from "@stripe/stripe-react-native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { Alert } from "react-native";
 
-const Payment = () => {
+// Payment sheet: create intent via existing /(stripe)/create API, then present
+const Payment = ({
+  fullName,
+  email,
+  amount,
+  driverId,
+  rideTime,
+}: {
+  fullName: string;
+  email: string;
+  amount: string;
+  driverId: number;
+  rideTime: number;
+}) => {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
-  const [loading, setLoading] = useState(false);
-
-  const [publishableKey, setPublishableKey] = useState("");
-
-  const confirmHandler = async (paymentMethod, shouldSavePaymentMethod, ) => {
-    const MyServerResponse = await fetch (...);
-    const {clientServer, error} = await response.json();
-    if(clientSecret){
-      intentCreationCallback{{clientServer}}
-  }
-    else {
-      intentCreationCallback {{error}}
-    }
-
-  const fetchPaymentSheetParams = async () => {
-    const response = await fetch(`${API_URL}/payment-sheet`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const { paymentIntent, ephemeralKey, customer_account } =
-      await response.json();
-
-    return {
-      paymentIntent,
-      ephemeralKey,
-      customer_account,
-    };
-  };
+  const [success, setSuccess] = useState(false);
 
   const initializePaymentSheet = async () => {
-    const { paymentIntent, ephemeralKey, customer_account } =
-      await fetchPaymentSheetParams();
+    // Route file: (api)/(stripe)/create+api.ts → /create
+    const { paymentIntent, ephemeralKey, customer } = await fetchAPI(
+      "/create",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          name: fullName || email.split("@")[0],
+          email,
+          amount,
+        }),
+      },
+    );
 
     const { error } = await initPaymentSheet({
-      merchantDisplayName: "Example, Inc.",
-      customerAccountId: customer_account,
-      customerEphemeralKeySecret: ephemeralKey,
-      paymentIntentClientSecret: paymentIntent,
-      // Set `allowsDelayedPaymentMethods` to true if your business accepts payment
-      // methods that complete payment after a delay, like SEPA Debit and Sofort.
-      allowsDelayedPaymentMethods: true,
-      defaultBillingDetails: {
-        name: "Jane Doe",
-      },
+      merchantDisplayName: "Parker, Inc.",
+      customerId: customer,
+      customerEphemeralKeySecret: ephemeralKey.secret,
+      paymentIntentClientSecret: paymentIntent.client_secret,
+      returnURL: "parkerr://book-ride",
     });
-    if (!error) {
-      setLoading(true);
+
+    if (error) {
+      Alert.alert(`Error code: ${error.code}`, error.message);
     }
   };
 
@@ -65,34 +57,17 @@ const Payment = () => {
       Alert.alert(`Error code: ${error.code}`, error.message);
     } else {
       setSuccess(true);
+      Alert.alert("Success", "Your order is confirmed!");
     }
   };
 
   return (
-    <Screen>
-      <Button
-        variant="primary"
-        disabled={!loading}
-        title="Checkout"
-        onPress={openPaymentSheet}
-      />
-    </Screen>
+    <AppButton
+      title="Confirm Ride"
+      className="my-10"
+      onPress={openPaymentSheet}
+    />
   );
-  };
-
-  useEffect(() => {
-    initializePaymentSheet();
-  }, []);
-
-  const openPaymentSheet = async () => {
-    return (
-      <>
-        <AppButton
-          title="Confirm Ride"
-          className="my-10"
-          onPress={openPaymentSheet}
-        />
-      </>
-    );
-  };
 };
+
+export default Payment;

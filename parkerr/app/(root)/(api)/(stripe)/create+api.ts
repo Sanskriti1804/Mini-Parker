@@ -1,6 +1,9 @@
 import { Stripe } from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+// Prefer server secret; fall back to existing env name if that's all that's set
+const stripe = new Stripe(
+  process.env.STRIPE_SECRET_KEY || process.env.EXPO_PUBLIC_STRIPE_SECRET_KEY!,
+);
 
 export async function POST(request: Request) {
   const body = await request.json();
